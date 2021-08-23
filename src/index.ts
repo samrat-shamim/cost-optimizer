@@ -1,16 +1,21 @@
 import { exit } from "process";
-import { Packer } from "./packer";
+import { ApiError } from "./classes/error";
+import { Packer } from "./classes/packer";
 
-const inputFileUrl = "E:/Mobiquity Code Challange JavaScript/skeleton_javascript/resources/example_input";
+const inputFileUrl = "E:/Mobiquity Code Challange JavaScript/skeleton_javascript/resources/example_input1";
+
+process.on('uncaughtException', (e: Error)=> {
+  throw new ApiError(e.message);
+})
 
 function main() {
   Packer.pack(inputFileUrl).subscribe(
     {
-      next: selectedIndices => {
+      next: (selectedIndices: string) => {
         console.log(selectedIndices);
       },
       error: (error: Error) => {
-        console.log(error)
+        throw new ApiError(error.message)
       },
       complete: () => {
         exit(0);

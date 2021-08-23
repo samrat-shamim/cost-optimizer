@@ -1,3 +1,5 @@
+import { ApiError } from "./error";
+
 export class Thing {
     Index: number;
     Weight: number;
@@ -7,9 +9,18 @@ export class Thing {
         const [index, weight, cost] = indexWeightCostStr
             .slice(1, indexWeightCostStr.length - 1)
             .split(',');
+        if (!+index){
+            throw new ApiError(`Invalid index ${index}`)
+        }
         this.Index = +index;
-        this.Weight = (+weight) * 100;
+        if (!+weight){
+            throw new ApiError(`Invalid weight ${weight} for index ${index}`)
+        }
+        this.Weight = +(+weight).toFixed(2) * 100;
         this.Cost = +cost.slice(1);
+        if (!this.Cost){
+            throw new ApiError(`Invalid cost ${cost} for index ${index}`)
+        }
         this.CostPerUnit = this.Cost/this.Weight;
     }
     toString = () => {

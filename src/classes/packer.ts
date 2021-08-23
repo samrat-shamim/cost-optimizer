@@ -3,6 +3,7 @@ import { Thing } from "./thing";
 import { FileReader } from "./file-reader";
 import { Observable, Subject } from "rxjs";
 import { TestCase, TestCaseResult } from "./test-case";
+import { ApiError } from "./error";
 const { StaticPool } = require('node-worker-threads-pool');
 
 
@@ -29,21 +30,7 @@ export class Packer {
 
         rlInterface.on('line', line => {
             this.totalCase++;
-            const [maxWeight, thingsStr] = line.split(":");
-            const things: Thing[] = thingsStr
-                .trim()
-                .split(" ")
-                .map((thingStr: string) => (new Thing(thingStr)));
-
-            things.sort((a, b) => {
-                if (a.CostPerUnit < b.CostPerUnit) {
-                    return 1;
-                } else if (a.CostPerUnit > b.CostPerUnit) {
-                    return -1;
-                }
-                return 0;
-            })
-            const testCase = new TestCase(this.currentCase++, things, (+maxWeight) * 100);
+            const testCase = this.validateInputAndPrepareTestCase(line);
             const thisRef = this;
             workerPool.exec(JSON.stringify(testCase)).then((testCaseResult: TestCaseResult) => {
                 thisRef.caseCompleted++;
@@ -51,6 +38,7 @@ export class Packer {
                 if (thisRef.totalCase === thisRef.caseCompleted && thisRef.readCompleted) {
                     subject.next(thisRef.prepareResult());
                     subject.complete();
+                    workerPool.destroy();
                 }
             });
 
@@ -68,9 +56,31 @@ export class Packer {
         return subject.asObservable();
     }
 
-    private static prepareResult(): string{
+    public static validateInputAndPrepareTestCase(inputString: string): TestCase {
+        const [maxWeight, thingsStr] = inputString.split(":");
+        if (!+maxWeight) {
+            throw new ApiError("Invalid max weight");
+        }
+        const things: Thing[] = thingsStr
+            .trim()
+            .split(" ")
+            .map((thingStr: string) => (new Thing(thingStr)));
+
+
+        things.sort((a, b) => {
+            if (a.CostPerUnit < b.CostPerUnit) {
+                return 1;
+            } else if (a.CostPerUnit > b.CostPerUnit) {
+                return -1;
+            }
+            return 0;
+        })
+        return new TestCase(this.currentCase++, things, (+maxWeight) * 100);
+    }
+
+    private static prepareResult(): string {
         let result = "";
-        for (let i= 1; i<= this.totalCase; i++){
+        for (let i = 1; i <= this.totalCase; i++) {
             result += this.caseResultMap.get(i);
             result += '\n'
         }
