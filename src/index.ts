@@ -9,6 +9,7 @@ process.on('uncaughtException', (e: Error)=> {
 })
 
 function main() {
+  Packer.parallelProcessingCount = 3;
   Packer.pack(inputFileUrl).subscribe(
     {
       next: (selectedIndices: string) => {

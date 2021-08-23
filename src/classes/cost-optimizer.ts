@@ -13,7 +13,7 @@ export class CostOptimizer {
         }
     }
 
-    // using dynamic programming bottom up tabulation method to solve the knapsack problem
+    // using dynamic programming bottom-up tabulation method to solve the knapsack problem
     private generateKnapsackDPTable() {
         const totalCount = this.Things.length;       
         for (let currentCount = 1; currentCount <= totalCount; currentCount++) {
