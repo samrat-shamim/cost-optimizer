@@ -7,11 +7,13 @@ export class CostOptimizer {
     constructor(things: Thing[], maxWeight: number) {
         this.Things = things;
         this.MaxWeight = maxWeight;
+        // initialize the dp table
         for (let i = 0; i < things.length + 1; i++) {
             this.KnapsackDPTable.push(new Array(maxWeight + 1).fill(-1))
         }
     }
 
+    // using dynamic programming bottom up tabulation method to solve the knapsack problem
     private generateKnapsackDPTable() {
         const totalCount = this.Things.length;       
         for (let currentCount = 1; currentCount <= totalCount; currentCount++) {

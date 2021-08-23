@@ -16,6 +16,7 @@ export class Thing {
         if (!+weight){
             throw new ApiError(`Invalid weight ${weight} for index ${index}`)
         }
+        // converting to fixed decimal and multiplying to get an integer to comply with the overlappling subproblem criterion of dynamic programming
         this.Weight = +(+weight).toFixed(2) * 100;
         this.Cost = +cost.slice(1);
         if (!this.Cost){

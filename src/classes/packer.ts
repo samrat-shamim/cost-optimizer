@@ -8,7 +8,7 @@ const { StaticPool } = require('node-worker-threads-pool');
 
 
 export class Packer {
-    private static parallelProcessingCount = 5;
+    private static parallelProcessingCount = 5; // Number of threads to run at any given time while processing 
     private static currentCase = 1;
     private static caseCompleted = 0;
     private static totalCase = 0;
@@ -22,6 +22,8 @@ export class Packer {
         const rlInterface = readline.createInterface({
             input: fileStream
         })
+
+        //As the process is cpu intensive, using worker thread pool to engage multiple cores and unblock the main thread
 
         const workerPool = new StaticPool({
             size: this.parallelProcessingCount,
